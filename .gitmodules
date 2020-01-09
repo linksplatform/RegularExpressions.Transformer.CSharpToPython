@@ -1,0 +1,3 @@
+[submodule "python"]
+	path = python
+	url = https://github.com/Ethosa/cs2py.git

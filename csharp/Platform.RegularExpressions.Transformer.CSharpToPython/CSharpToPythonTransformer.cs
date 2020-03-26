@@ -25,19 +25,20 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython
             (new Regex(@"~!~#~@~"), "\\\\\\\"", 0),
             // @" ... "" ... "
             // @" ... \" ... "
-            (new Regex(@"(?<before>@""(\\""|[^""])+)""""(?<after>(""""|[^""])+"")"), "${before}\\\"${after}", 100),
+            (new Regex(@"(?<before>@""(\\""|[^""])*)""""(?<after>(\\""|[^""]|"""")*""(,|\)))"), "${before}\\\"${after}", 100),
             // @"
             // r"
             (new Regex(@"@"""), "r\"", 0),
-            // new Regex(r"
-            // r"
+            // new Regex(r"..."),
+            // r"...",
             (new Regex(@"new Regex\(r""(?<expression>((?!""\),)[^\n])+)""\),"), "r\"${expression}\",", 0),
-            // (?<-parenthesis>
-            // (?P<!parenthesis>
-            (new Regex(@"(?<before>\(\?)<-(?<after>[^<>]+>)"), "${before}P<!${after}", 0),
+            // https://regex101.com/r/fM2da4/1/
+            // ((?<parenthesis>\()|(?<-parenthesis>\))|[^();\r\n]*?)*?
+            // (([^();\r\n]*?(?P<parenthesis>\()(?(parenthesis)[^();\r\n]*?\)))*?[^();\r\n]*?)
+            (new Regex(@"\((?<expressionName>\?<\w+>)?\((\?<(?<symbolName>\w+)>)(?<openSymbol>(\(|[^()|])+)\)\|\((\?<-\k<symbolName>>)(?<closeSymbol>(\)|[^()|])+)\)\|(?<otherSymbols>(\[[^\[\]]+\]|[^()|])+(\|(\[[^\[\]]+]|[^()|])+)?)\)(?<multiplicator>(\*|\+)(\?)?)"), "(${expressionName}((${otherSymbols})(?P<${symbolName}>${openSymbol})(?(${symbolName})(${otherSymbols})${closeSymbol}))${multiplicator}(${otherSymbols}))", 0),
             // (?<before>
             // (?P<before>
-            (new Regex(@"(?<before>\(\?)(?<after><[^<>]+>)"), "${before}P${after}", 0),
+            (new Regex(@"(?<before>\(\?)(?<after><(?!!)[^<>]+>)"), "${before}P${after}", 0),
             // \k<...>
             // (?P=...)
             (new Regex(@"\\k<(?<name>[^<>]+)>"), "(?P=${name})", 0),

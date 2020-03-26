@@ -222,7 +222,7 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython.Tests
             (new Regex(@""(Assert)\.Throws""), ""$1::ExpectException"", 0),
             // $""Argument {argumentName} is null.""
             // ((std::string)""Argument "").append(argumentName).append("" is null."").data()
-            (new Regex(@""\$""""(?<left>(\\""""|[^""""\r\n])*){(?<expression>[_a-zA-Z0-9]+)}(?<right>(\\""""|[^""""\r\n])*)""""""), ""((std::string)$\""${left}\"").append(${expression}).append(\""${right}\"").data()"", 10),
+            (new Regex(@""\$""""(?<left>(\""""|[^""""\r\n])*){(?<expression>[_a-zA-Z0-9]+)}(?<right>(\""""|[^""""\r\n])*)""""""), ""((std::string)$\""${left}\"").append(${expression}).append(\""${right}\"").data()"", 10),
             // $""
             // ""
             (new Regex(@""\$""""""), ""\"""", 0),
@@ -353,7 +353,6 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython.Tests
             // Inside method bodies replace:
             // GetFirst(
             // this->GetFirst(
-            //(new Regex(@""(?<separator>(\(|, |([\W]) |return ))(?<!(->|\* ))(?<method>(?!sizeof)[a-zA-Z0-9]+)\((?!\) \{)""), ""${separator}this->${method}("", 1),
             (new Regex(@""(?<scope>/\*method-start\*/)(?<before>((?<!/\*method-end\*/)(.|\n))*?)(?<separator>[\W](?<!(::|\.|->)))(?<method>(?!sizeof)[a-zA-Z0-9]+)\((?!\) \{)(?<after>(.|\n)*?)(?<scopeEnd>/\*method-end\*/)""), ""${scope}${before}${separator}this->${method}(${after}${scopeEnd}"", 100),
             // Remove scope borders.
             // /*method-start*/
@@ -523,7 +522,7 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython.Tests
             (r""(^\s+)(private|protected|public)?(: )?(template \<[^>\r\n]+\> )?(static )?(override )?([a-zA-Z0-9]+ )([a-zA-Z0-9]+)\(([^\(\r\n]*)\)\s+=>\s+([^;\r\n]+);"", r""\1\2\3\4\5\6\7\8(\9) { return \10; }"", 0),
             # () => Integer<TElement>.Zero,
             # () { return Integer<TElement>.Zero; },
-            (r""\(\)\s+=>\s+(?P<expression>[^\(\),;\r\n]+(\(((?P<parenthesis>\()|(?P<parenthesis>\))|[^\(\);\r\n]*?)*?\))?[^\(\),;\r\n]*)(?P<after>,|\);)"", r""() { return \g<expression>; }\g<after>"", 0),
+            (r""\(\)\s+=>\s+(?P<expression>[^(),;\r\n]+(\(((([^();\r\n]*?)(?P<parenthesis>\()(?(parenthesis)([^();\r\n]*?)\)))*?([^();\r\n]*?))\))?[^(),;\r\n]*)(?P<after>,|\);)"", r""() { return \g<expression>; }\g<after>"", 0),
             # => Integer<TElement>.Zero;
             # { return Integer<TElement>.Zero; }
             (r""\)\s+=>\s+([^;\r\n]+?);"", r"") { return \1; }"", 0),
@@ -637,10 +636,10 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython.Tests
             (r""(Assert)\.Throws"", r""\1::ExpectException"", 0),
             # $""Argument {argumentName} is null.""
             # ((std::string)""Argument "").append(argumentName).append("" is null."").data()
-            (r""\$""""(?P<left>(\\\""|[^\""\r\n])*){(?P<expression>[_a-zA-Z0-9]+)}(?P<right>(\\\""|[^\""\r\n])*)\"""", r""((std::string)$\""\g<left>\"").append(\g<expression>).append(\""\g<right>\"").data()"", 10),
+            (r""\$\""(?P<left>(\\\""|[^\""\r\n])*){(?P<expression>[_a-zA-Z0-9]+)}(?P<right>(\\\""|[^\""\r\n])*)\"""", r""((std::string)$\""\g<left>\"").append(\g<expression>).append(\""\g<right>\"").data()"", 10),
             # $""
             # ""
-            (r""\$"""""", r""\"""", 0),
+            (r""\$\"""", r""\"""", 0),
             # Console.WriteLine(""..."")
             # printf(""...\n"")
             (r""Console\.WriteLine\(\""([^\""\r\n]+)\""\)"", r""printf(\""\1\\n\"")"", 0),
@@ -764,11 +763,10 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython.Tests
             # Insert method body scope ends.
             # {/*method-start*/...}
             # {/*method-start*/.../*method-end*/}
-            (r""\{/\*method-start\*/(?P<body>((?P<bracket>\{)|(?P<bracket>\})|[^\{\}]*)+)\}"", r""{/*method-start*/\g<body>/*method-end*/}"", 0),
+            (r""\{/\*method-start\*/(?P<body>((([^\{\}]*)(?P<bracket>\{)(?(bracket)([^\{\}]*)\}))+([^\{\}]*)))\}"", r""{/*method-start*/\g<body>/*method-end*/}"", 0),
             # Inside method bodies replace:
             # GetFirst(
             # this->GetFirst(
-            # (r""(?P<separator>(\(|, |([\W]) |return ))(?<!(->|\* ))(?P<method>(?!sizeof)[a-zA-Z0-9]+)\((?!\) \{)"", r""\g<separator>this->\g<method>("", 1),
             (r""(?P<scope>/\*method-start\*/)(?P<before>((?<!/\*method-end\*/)(.|\n))*?)(?P<separator>[\W](?<!(::|\.|->)))(?P<method>(?!sizeof)[a-zA-Z0-9]+)\((?!\) \{)(?P<after>(.|\n)*?)(?P<scopeEnd>/\*method-end\*/)"", r""\g<scope>\g<before>\g<separator>this->\g<method>(\g<after>\g<scopeEnd>"", 100),
             # Remove scope borders.
             # /*method-start*/
@@ -799,33 +797,51 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython.Tests
             # throw std::logic_error(""Not implemented exception."");
             (r""throw new NotImplementedException\(\);"", r""throw std::logic_error(\""Not implemented exception.\"");"", 0),
 
+            # ICounter<int, int> c1;
+            # ICounter<int, int>* c1;
+            (r""(?P<abstractType>I[A-Z][a-zA-Z0-9]+(<[^>\r\n]+>)?) (?P<variable>[_a-zA-Z0-9]+);"", r""\g<abstractType>* \g<variable>;"", 0),
             # (expression)
             # expression
             (r""(\(| )\(([a-zA-Z0-9_\*:]+)\)(,| |;|\))"", r""\1\2\3"", 0),
             # (method(expression))
             # method(expression)
-            (r""(?P<firstSeparator>(\(| ))\((?P<method>[a-zA-Z0-9_\->\*:]+)\((?P<expression>((?P<parenthesis>\()|(?<!parenthesis>\))|[a-zA-Z0-9_\->\*:]*)+)(?(parenthesis)(?!))\)\)(?P<lastSeparator>(,| |;|\)))"", r""\g<firstSeparator>\g<method>(\g<expression>)\g<lastSeparator>"", 0),
+            (r""(?P<firstSeparator>(\(| ))\((?P<method>[a-zA-Z0-9_\->\*:]+)\((?P<expression>((([a-zA-Z0-9_\->\*:]*)(?P<parenthesis>\()(?(parenthesis)([a-zA-Z0-9_\->\*:]*)\)))+([a-zA-Z0-9_\->\*:]*)))(?(parenthesis)(?!))\)\)(?P<lastSeparator>(,| |;|\)))"", r""\g<firstSeparator>\g<method>(\g<expression>)\g<lastSeparator>"", 0),
             # return ref _elements[node];
             # return &_elements[node];
             (r""return ref ([_a-zA-Z0-9]+)\[([_a-zA-Z0-9\*]+)\];"", r""return &\1[\2];"", 0),
+            # null
+            # nullptr
+            (r""(?P<before>\r?\n[^\""\r\n]*(\""(\\\\""|[^\""\r\n])*\""[^\""\r\n]*)*)(?<=\W)null(?P<after>\W)"", r""\g<before>nullptr\g<after>"", 10),
             # default
             # 0
-            (r""(\W)default(\W)"", r""{\1}0\2"", 0),
-            # //#define ENABLE_TREE_AUTO_DEBUG_AND_VALIDATION
+            (r""(?P<before>\r?\n[^\""\r\n]*(\""(\\\\""|[^\""\r\n])*\""[^\""\r\n]*)*)(?<=\W)default(?P<after>\W)"", r""\g<before>0\g<after>"", 10),
+            # object x
+            # void *x
+            (r""(?P<before>\r?\n[^\""\r\n]*(\""(\\\\""|[^\""\r\n])*\""[^\""\r\n]*)*)(?<=\W)([O|o]bject|System\.Object) (?P<after>\w)"", r""\g<before>void *\g<after>"", 10),
+            # <object>
+            # <void*>
+            (r""(?P<before>\r?\n[^\""\r\n]*(\""(\\\\""|[^\""\r\n])*\""[^\""\r\n]*)*)(?<=\W)(?<!\w )([O|o]bject|System\.Object)(?P<after>\W)"", r""\g<before>void*\g<after>"", 10),
+            # ArgumentNullException
+            # std::invalid_argument
+            (r""(?P<before>\r?\n[^\""\r\n]*(\""(\\\\""|[^\""\r\n])*\""[^\""\r\n]*)*)(?<=\W)(System\.)?ArgumentNullException(?P<after>\W)"", r""\g<before>std::invalid_argument\g<after>"", 10),
+            # #region Always
             # 
+            (r""(^|\r?\n)[ \t]*\#(region|endregion)[^\r\n]*(\r?\n|$)"", r"""", 0),
+            # //#define ENABLE_TREE_AUTO_DEBUG_AND_VALIDATION
+            #
             (r""\/\/[ \t]*\#define[ \t]+[_a-zA-Z0-9]+[ \t]*"", r"""", 0),
             # #if USEARRAYPOOL\r\n#endif
             # 
             (r""#if [a-zA-Z0-9]+\s+#endif"", r"""", 0),
             # [Fact]
             # 
-            (r""(?P<firstNewLine>\r?\n|\A)(?P<indent>[\t ]+)\[[a-zA-Z0-9]+(\((?P<expression>((?P<parenthesis>\()|(?<!parenthesis>\))|[^\(\)]*)+)(?(parenthesis)(?!))\))?\][ \t]*(\r?\n(?P=indent))?"", r""\g<firstNewLine>\g<indent>"", 5),
+            (r""(?P<firstNewLine>\r?\n|\A)(?P<indent>[\t ]+)\[[a-zA-Z0-9]+(\((?P<expression>((([^()\r\n]*)(?P<parenthesis>\()(?(parenthesis)([^()\r\n]*)\)))+([^()\r\n]*)))(?(parenthesis)(?!))\))?\][ \t]*(\r?\n(?P=indent))?"", r""\g<firstNewLine>\g<indent>"", 5),
             # \n ... namespace
             # namespace
             (r""(\S[\r\n]{1,2})?[\r\n]+namespace"", r""\1namespace"", 0),
             # \n ... class
             # class
-            (r""(\S[\r\n]{1,2})?[\r\n]+class"", r""\n\1class"", 0)
+            (r""(\S[\r\n]{1,2})?[\r\n]+class"", r""\1class"", 0),
 ";
 
             var transformer = new CSharpToPythonTransformer();

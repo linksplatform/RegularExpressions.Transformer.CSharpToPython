@@ -20,7 +20,7 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython.Tests
             var source = @"
             // // ...
             // 
-            (new Regex(@""(\r ?\n)?[ \t] +//+.+""), """", 0),
+            (new Regex(@""(\r?\n)?[ \t]+//+.+""), """", 0),
             // #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
             // 
             (new Regex(@""^\s*?\#pragma[\sa-zA-Z0-9]+$""), """", 0),
@@ -397,19 +397,19 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython.Tests
             (new Regex(@""return ref ([_a-zA-Z0-9]+)\[([_a-zA-Z0-9\*]+)\];""), ""return &$1[$2];"", 0),
             // null
             // nullptr
-            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)null(?<after>\W)""), ""${before}nullptr${after}"", 10),
+            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)null(?<after>\W)""), ""${before}nullptr${after}"", 10),
             // default
             // 0
-            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)default(?<after>\W)""), ""${before}0${after}"", 10),
+            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)default(?<after>\W)""), ""${before}0${after}"", 10),
             // object x
             // void *x
-            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)([O|o]bject|System\.Object) (?<after>\w)""), ""${before}void *${after}"", 10),
+            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)([O|o]bject|System\.Object) (?<after>\w)""), ""${before}void *${after}"", 10),
             // <object>
             // <void*>
-            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)(?<!\w )([O|o]bject|System\.Object)(?<after>\W)""), ""${before}void*${after}"", 10),
+            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)(?<!\w )([O|o]bject|System\.Object)(?<after>\W)""), ""${before}void*${after}"", 10),
             // ArgumentNullException
             // std::invalid_argument
-            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)(System\.)?ArgumentNullException(?<after>\W)""), ""${before}std::invalid_argument${after}"", 10),
+            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)(System\.)?ArgumentNullException(?<after>\W)""), ""${before}std::invalid_argument${after}"", 10),
             // #region Always
             // 
             (new Regex(@""(^|\r?\n)[ \t]*\#(region|endregion)[^\r\n]*(\r?\n|$)""), """", 0),
@@ -434,7 +434,7 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython.Tests
             var target = @"
             # // ...
             # 
-            (r""(\r ?\n)?[ \t] +//+.+"", r"""", 0),
+            (r""(\r?\n)?[ \t]+//+.+"", r"""", 0),
             # #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
             # 
             (r""^\s*?\#pragma[\sa-zA-Z0-9]+$"", r"""", 0),
@@ -811,19 +811,19 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython.Tests
             (r""return ref ([_a-zA-Z0-9]+)\[([_a-zA-Z0-9\*]+)\];"", r""return &\1[\2];"", 0),
             # null
             # nullptr
-            (r""(?P<before>\r?\n[^\""\r\n]*(\""(\\\\""|[^\""\r\n])*\""[^\""\r\n]*)*)(?<=\W)null(?P<after>\W)"", r""\g<before>nullptr\g<after>"", 10),
+            (r""(?P<before>\r?\n[^\""\r\n]*(\""(\\\""|[^\""\r\n])*\""[^\""\r\n]*)*)(?<=\W)null(?P<after>\W)"", r""\g<before>nullptr\g<after>"", 10),
             # default
             # 0
-            (r""(?P<before>\r?\n[^\""\r\n]*(\""(\\\\""|[^\""\r\n])*\""[^\""\r\n]*)*)(?<=\W)default(?P<after>\W)"", r""\g<before>0\g<after>"", 10),
+            (r""(?P<before>\r?\n[^\""\r\n]*(\""(\\\""|[^\""\r\n])*\""[^\""\r\n]*)*)(?<=\W)default(?P<after>\W)"", r""\g<before>0\g<after>"", 10),
             # object x
             # void *x
-            (r""(?P<before>\r?\n[^\""\r\n]*(\""(\\\\""|[^\""\r\n])*\""[^\""\r\n]*)*)(?<=\W)([O|o]bject|System\.Object) (?P<after>\w)"", r""\g<before>void *\g<after>"", 10),
+            (r""(?P<before>\r?\n[^\""\r\n]*(\""(\\\""|[^\""\r\n])*\""[^\""\r\n]*)*)(?<=\W)([O|o]bject|System\.Object) (?P<after>\w)"", r""\g<before>void *\g<after>"", 10),
             # <object>
             # <void*>
-            (r""(?P<before>\r?\n[^\""\r\n]*(\""(\\\\""|[^\""\r\n])*\""[^\""\r\n]*)*)(?<=\W)(?<!\w )([O|o]bject|System\.Object)(?P<after>\W)"", r""\g<before>void*\g<after>"", 10),
+            (r""(?P<before>\r?\n[^\""\r\n]*(\""(\\\""|[^\""\r\n])*\""[^\""\r\n]*)*)(?<=\W)(?<!\w )([O|o]bject|System\.Object)(?P<after>\W)"", r""\g<before>void*\g<after>"", 10),
             # ArgumentNullException
             # std::invalid_argument
-            (r""(?P<before>\r?\n[^\""\r\n]*(\""(\\\\""|[^\""\r\n])*\""[^\""\r\n]*)*)(?<=\W)(System\.)?ArgumentNullException(?P<after>\W)"", r""\g<before>std::invalid_argument\g<after>"", 10),
+            (r""(?P<before>\r?\n[^\""\r\n]*(\""(\\\""|[^\""\r\n])*\""[^\""\r\n]*)*)(?<=\W)(System\.)?ArgumentNullException(?P<after>\W)"", r""\g<before>std::invalid_argument\g<after>"", 10),
             # #region Always
             # 
             (r""(^|\r?\n)[ \t]*\#(region|endregion)[^\r\n]*(\r?\n|$)"", r"""", 0),

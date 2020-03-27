@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -20,6 +19,21 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython
             // @" ... "" ... "
             // @" ... \" ... "
             (new Regex(@"(?<before>@""(\\""|[^""])*)""""(?<after>(\\""|[^""]|"""")*""(,|\)))"), "${before}\\\"${after}", 100),
+            // "{" + Environment.NewLine,
+            // "{\n",
+            (new Regex(@"""((\\""|[^""\n])+)""\s*\+\s*Environment\.NewLine\s*,"), "\"$1\\n\",", 0),
+            // " + Environment.NewLine + "
+            // \n
+            (new Regex(@"""\s*\+\s*Environment\.NewLine\s*\+\s*"""), "\\n", 0),
+            // " + Environment.NewLine + Environment.NewLine + "
+            // \n\n
+            (new Regex(@"""\s*\+\s*Environment\.NewLine\s*\+\s*Environment\.NewLine\s*\+\s*"""), "\\n\\n", 0),
+            // Environment.NewLine + Environment.NewLine
+            // "\n\n"
+            (new Regex(@"Environment\.NewLine\s*\+\s*Environment\.NewLine"), "\"\\n\\n\"", 0),
+            // Environment.NewLine + "
+            // "\n
+            (new Regex(@"Environment\.NewLine\s*\+\s*"""), "\"\\n", 0),
             // @"
             // r"
             (new Regex(@"@"""), "r\"", 0),
@@ -45,15 +59,6 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython
             // r"$1"
             // r"\1"
             (new Regex(@"(?<before>r""(\\""|\$\D+|[^""\$\n])*)\$(?<number>\d+)(?<after>(\\""|[^""\n])*"")"), "${before}\\${number}${after}", 100),
-            // "{" + Environment.NewLine,
-            // "{\n",
-            (new Regex(@"""((\\""|[^""\n])+)""\s*\+\s*Environment\.NewLine\s*,"), "\"$1\\n\",", 0),
-            // " + Environment.NewLine + "
-            // \n
-            (new Regex(@"""\s*\+\s*Environment\.NewLine\s*\+\s*"""), "\\n", 0),
-            // " + Environment.NewLine + Environment.NewLine + "
-            // \n\n
-            (new Regex(@"""\s*\+\s*Environment\.NewLine\s*\+\s*Environment\.NewLine\s*\+\s*"""), "\\n\\n", 0),
         }.Cast<ISubstitutionRule>().ToList();
 
         public static readonly IList<ISubstitutionRule> LastStage = new List<SubstitutionRule>

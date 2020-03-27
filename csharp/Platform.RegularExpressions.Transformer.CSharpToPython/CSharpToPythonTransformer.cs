@@ -17,12 +17,6 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython
             // // ...
             // # ...
             (new Regex(@"(?<before>(?<=\r?\n)(@""((?!"""")[^\n])*(""""[^\n]*)*""|[^""\n/])+)//(?<after>[^\n]+)(?<newline>\r?\n)"), "${before}#${after}${newline}", 0),
-            // @" ... \" ... "
-            // @" ... ~!~#~@~ ... "
-            (new Regex(@"(?<before>@""(""""|[^""])+)\\""""(?<after>(""""|[^""])+"")"), "${before}~!~#~@~${after}", 100),
-            // ~!~#~@~
-            // \\\"
-            (new Regex(@"~!~#~@~"), "\\\\\\\"", 0),
             // @" ... "" ... "
             // @" ... \" ... "
             (new Regex(@"(?<before>@""(\\""|[^""])*)""""(?<after>(\\""|[^""]|"""")*""(,|\)))"), "${before}\\\"${after}", 100),

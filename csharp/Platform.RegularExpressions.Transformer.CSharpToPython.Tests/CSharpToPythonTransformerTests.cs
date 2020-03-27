@@ -75,7 +75,7 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython.Tests
             (new Regex(@""(?<access>(private|protected|public): )?static readonly (?<type>[a-zA-Z0-9]+) (?<name>[a-zA-Z0-9_]+) = new \k<type>\(\);""), ""${access}inline static ${type} ${name};"", 0),
             // public: static readonly string ExceptionContentsSeparator = ""---"";
             // public: inline static const char* ExceptionContentsSeparator = ""---"";
-            (new Regex(@""(?<access>(private|protected|public): )?static readonly string (?<name>[a-zA-Z0-9_]+) = """"(?<string>(\""""|[^""""\r\n])+)"""";""), ""${access}inline static const char* ${name} = \""${string}\"";"", 0),
+            (new Regex(@""(?<access>(private|protected|public): )?static readonly string (?<name>[a-zA-Z0-9_]+) = """"(?<string>(\\""""|[^""""\r\n])+)"""";""), ""${access}inline static const char* ${name} = \""${string}\"";"", 0),
             // private: const int MaxPath = 92;
             // private: static const int MaxPath = 92;
             (new Regex(@""(?<access>(private|protected|public): )?(const|static readonly) (?<type>[a-zA-Z0-9]+) (?<name>[_a-zA-Z0-9]+) = (?<value>[^;\r\n]+);""), ""${access}static const ${type} ${name} = ${value};"", 0),
@@ -222,7 +222,7 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython.Tests
             (new Regex(@""(Assert)\.Throws""), ""$1::ExpectException"", 0),
             // $""Argument {argumentName} is null.""
             // ((std::string)""Argument "").append(argumentName).append("" is null."").data()
-            (new Regex(@""\$""""(?<left>(\""""|[^""""\r\n])*){(?<expression>[_a-zA-Z0-9]+)}(?<right>(\""""|[^""""\r\n])*)""""""), ""((std::string)$\""${left}\"").append(${expression}).append(\""${right}\"").data()"", 10),
+            (new Regex(@""\$""""(?<left>(\\""""|[^""""\r\n])*){(?<expression>[_a-zA-Z0-9]+)}(?<right>(\\""""|[^""""\r\n])*)""""""), ""((std::string)$\""${left}\"").append(${expression}).append(\""${right}\"").data()"", 10),
             // $""
             // ""
             (new Regex(@""\$""""""), ""\"""", 0),
@@ -397,19 +397,19 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython.Tests
             (new Regex(@""return ref ([_a-zA-Z0-9]+)\[([_a-zA-Z0-9\*]+)\];""), ""return &$1[$2];"", 0),
             // null
             // nullptr
-            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)null(?<after>\W)""), ""${before}nullptr${after}"", 10),
+            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)null(?<after>\W)""), ""${before}nullptr${after}"", 10),
             // default
             // 0
-            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)default(?<after>\W)""), ""${before}0${after}"", 10),
+            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)default(?<after>\W)""), ""${before}0${after}"", 10),
             // object x
             // void *x
-            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)([O|o]bject|System\.Object) (?<after>\w)""), ""${before}void *${after}"", 10),
+            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)([O|o]bject|System\.Object) (?<after>\w)""), ""${before}void *${after}"", 10),
             // <object>
             // <void*>
-            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)(?<!\w )([O|o]bject|System\.Object)(?<after>\W)""), ""${before}void*${after}"", 10),
+            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)(?<!\w )([O|o]bject|System\.Object)(?<after>\W)""), ""${before}void*${after}"", 10),
             // ArgumentNullException
             // std::invalid_argument
-            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)(System\.)?ArgumentNullException(?<after>\W)""), ""${before}std::invalid_argument${after}"", 10),
+            (new Regex(@""(?<before>\r?\n[^""""\r\n]*(""""(\\""""|[^""""\r\n])*""""[^""""\r\n]*)*)(?<=\W)(System\.)?ArgumentNullException(?<after>\W)""), ""${before}std::invalid_argument${after}"", 10),
             // #region Always
             // 
             (new Regex(@""(^|\r?\n)[ \t]*\#(region|endregion)[^\r\n]*(\r?\n|$)""), """", 0),
@@ -847,12 +847,6 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython.Tests
             var transformer = new CSharpToPythonTransformer();
             var actualResult = transformer.Transform(source);
             Assert.Equal(target, actualResult);
-        }
-
-        [Fact]
-        public void HelloWorldTest()
-        {
-
         }
     }
 }

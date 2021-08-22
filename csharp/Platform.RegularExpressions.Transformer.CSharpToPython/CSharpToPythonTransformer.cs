@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -6,8 +6,21 @@ using System.Text.RegularExpressions;
 
 namespace Platform.RegularExpressions.Transformer.CSharpToPython
 {
+    /// <summary>
+    /// <para>
+    /// Represents the sharp to python transformer.
+    /// </para>
+    /// <para></para>
+    /// </summary>
+    /// <seealso cref="TextTransformer"/>
     public class CSharpToPythonTransformer : TextTransformer
     {
+        /// <summary>
+        /// <para>
+        /// The to list.
+        /// </para>
+        /// <para></para>
+        /// </summary>
         public static readonly IList<ISubstitutionRule> FirstStage = new List<SubstitutionRule>
         {
             // // 
@@ -61,13 +74,35 @@ namespace Platform.RegularExpressions.Transformer.CSharpToPython
             (new Regex(@"(?<before>r""(\\""|\$\D+|[^""\$\n])*)\$(?<number>\d+)(?<after>(\\""|[^""\n])*"")"), "${before}\\${number}${after}", 100),
         }.Cast<ISubstitutionRule>().ToList();
 
+        /// <summary>
+        /// <para>
+        /// The to list.
+        /// </para>
+        /// <para></para>
+        /// </summary>
         public static readonly IList<ISubstitutionRule> LastStage = new List<SubstitutionRule>
         {
 
         }.Cast<ISubstitutionRule>().ToList();
 
+        /// <summary>
+        /// <para>
+        /// Initializes a new <see cref="CSharpToPythonTransformer"/> instance.
+        /// </para>
+        /// <para></para>
+        /// </summary>
+        /// <param name="extraRules">
+        /// <para>A extra rules.</para>
+        /// <para></para>
+        /// </param>
         public CSharpToPythonTransformer(IList<ISubstitutionRule> extraRules) : base(FirstStage.Concat(extraRules).Concat(LastStage).ToList()) { }
 
+        /// <summary>
+        /// <para>
+        /// Initializes a new <see cref="CSharpToPythonTransformer"/> instance.
+        /// </para>
+        /// <para></para>
+        /// </summary>
         public CSharpToPythonTransformer() : base(FirstStage.Concat(LastStage).ToList()) { }
     }
 }
